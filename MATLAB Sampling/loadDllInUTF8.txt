@@ -1,0 +1,52 @@
+%读取dll
+%load DobotDll
+if ~libisloaded('DobotDll')
+    loadlibrary('DobotDll.dll','DobotDll.h');
+end
+%查看matlab中的api函数签名
+%libfunctionsview DobotDll
+
+%创建一个chararray
+%create charArrays
+ch=''
+
+%搜索dobot
+%search the magician device   res1:device number     res2:device address
+[res1,ch]=calllib('DobotDll','SearchDobot',ch,128);
+
+%连接dobot
+%contect device res3:contect result 0:success 1:error 2:timeout
+[res3,res4]=calllib('DobotDll','ConnectDobot','', 115200);
+
+%声明index函数类型为int
+%create queue index
+queue_index=0;
+%声明ptp为ptpCmd类型
+%create ptp struct
+ptp.ptpMode=0;
+ptp.x=200.0;
+ptp.y=0.0;
+ptp.z=0.0;
+ptp.r=0.0;
+
+%执行队列
+%cmd start exec queue
+calllib('DobotDll','SetQueuedCmdStartExec')
+
+%发送ptp指令
+%send ptp cmd
+calllib('DobotDll','SetPTPCmd',ptp,true,queue_index);
+
+%停止执行队列
+%cmd stop exec queue
+calllib('DobotDll','SetQueuedCmdStopExec');
+
+%断开连接
+%cmd disconnect device
+calllib('DobotDll','DisconnectDobot'); 
+
+%清除内存
+%clear value
+clear ptp;
+%unloadlibrary DobotDll;
+unloadlibrary('DobotDll');
